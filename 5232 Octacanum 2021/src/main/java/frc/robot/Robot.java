@@ -209,10 +209,25 @@ public class Robot extends TimedRobot {
     }
 
     X = m_stick.getX();
-    X = -X;
     Y = m_stick.getY();
     Z = m_stick.getZ();
+    
+    if (Math.abs(X) <= .1){
+      X = 0;
+    }
+    if (Math.abs(Y) <= .1){
+      Y = 0;
+    }
+    if (Math.abs(Z) <= .1){
+      Z = 0;
+    }
+    System.out.println(X);
+    System.out.println(Y);
+    System.out.println(Z);
     Z = -Z;
+    X = -X;
+
+    
 
     
     if (m_stick.getRawButton(1)){
