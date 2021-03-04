@@ -13,12 +13,17 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
-
+import edu.wpi.first.wpilibj.Solenoid;
 
 //currently unused
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.buttons.Trigger;
 import edu.wpi.first.wpilibj.command.PrintCommand;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -38,20 +43,23 @@ public class Robot extends TimedRobot {
   TalonFX FXtest = new TalonFX(15);
 
   TalonFX FrontLeft = new TalonFX(16);
-  TalonFX FrontRight = new TalonFX(16);
-  TalonFX BackLeft = new TalonFX(16);
-  TalonFX BackRight = new TalonFX(16);
+  TalonFX FrontRight = new TalonFX(15);
+  TalonFX BackLeft = new TalonFX(17);
+  TalonFX BackRight = new TalonFX(18);
 
   WPI_TalonFX m_FrontLeft = new WPI_TalonFX(16);
-  WPI_TalonFX m_FrontRight = new WPI_TalonFX(16);
+  WPI_TalonFX m_FrontRight = new WPI_TalonFX(15);
   
-  WPI_TalonFX m_BackLeft = new WPI_TalonFX(16);
+  WPI_TalonFX m_BackLeft = new WPI_TalonFX(17);
   
 
-  WPI_TalonFX m_BackRight = new WPI_TalonFX(16);
+  WPI_TalonFX m_BackRight = new WPI_TalonFX(18);
 
 
   private final Joystick m_stick = new Joystick(0);
+  Joystick m_buttons = new Joystick(0);
+
+  final JoystickButton k3 = new JoystickButton(m_buttons, 10);
 
 
   double FL = 0;
@@ -62,6 +70,23 @@ public class Robot extends TimedRobot {
   public double Y = .1;
   public double X = 0;
   public double Z = 0;
+
+  int compr;
+
+  int button;
+
+  DoubleSolenoid doubleSolenoid = new DoubleSolenoid(0,1);
+
+  
+
+  //Solenoid num1 = new Solenoid(0);
+  //Solenoid num2 = new Solenoid(1);
+
+  Compressor compressor = new Compressor(0);
+  //boolean enabled = compressor.enabled();
+  //boolean pressureSwich = compressor.getPressureSwitchValue();
+
+  
 
   /*
 
@@ -90,86 +115,154 @@ public class Robot extends TimedRobot {
     
     m_BackLeft.follow(m_FrontLeft);
     m_BackRight.follow(m_FrontRight);
+    //private final drive m_drive = new drive();
+    
 
     
     
 
     System.out.println("-----------------Start of the program-----------------");
-    //SRXtets.set(ControlMode.PercentOutput,50);
     FXtest.set(ControlMode.PercentOutput,0);
-
-    //FrontLeft.set(ControlMode.PercentOutput,0);
 
   }
 
   @Override
   public void robotPeriodic() {
+    //k3.whenPressed(new drive());
+    
     
     
     /*System.out.println(POwa);
     FXtest.set(ControlMode.PercentOutput,POwa);
     POwa = POwa - 1;
     */
+    
 
     
   }
 
   @Override
   public void autonomousInit() {
-    for (int i = 1; i <= 100; i++) {
+    /*for (int i = 1; i <= 100; i++) {
     
     final int Speed = 100 - i;
     System.out.println(i);
     FXtest.set(ControlMode.PercentOutput,Speed);
     }
+    */
+    //doubleSolenoid.set(Value.kOff);
+    //num1.set(true);
+    //num2.set(false);
 
 
   }
 
   @Override
   public void autonomousPeriodic() {
+    X = m_stick.getX();
+      X = -X;
+      Y = m_stick.getY();
+      Z = m_stick.getZ();
+      Z = -Z;
+
+      FL = Y+(X+Z);
+      FR = Y-(X+Z);
+      BL = Y-(X-Z);
+      BR = Y+(X-Z);
+
+      //reverses the RIGHT SIDE
+      FR = -FR;
+      BR = -BR;
+    
+      FrontLeft.set(ControlMode.PercentOutput,FL);
+      FrontRight.set(ControlMode.PercentOutput,FR);
+      BackLeft.set(ControlMode.PercentOutput,BL);
+      BackRight.set(ControlMode.PercentOutput,BR);
   }
 
   @Override
   public void teleopInit() {
-     
+    button = 1;
+    compr = 1;
+
   }
 
   @Override
   public void teleopPeriodic() {
+    if (m_stick.getRawButton(4)){
+      button = -1;
+    }
+    if (m_stick.getRawButton(3)){
+      button = 1;
+    }
+    if (m_stick.getRawButton(10)){
+      compr = -1;
+    }
+    if (m_stick.getRawButton(5)){
+      compr = 1;
+    }
+    if (compr == 1){
+      compressor.start();
+    }
+    else{
+      compressor.stop();
+    }
+
     X = m_stick.getX();
+    X = -X;
     Y = m_stick.getY();
     Z = m_stick.getZ();
-    FL = Y+(X+Z);
-    FR = Y-(X+Z);
-    BL = Y-(X-Z);
-    BR = Y+(X-Z);
-    
-    System.out.println("Stick X");
-    System.out.print(X);
-    System.out.print(" Y");
-    System.out.print(Y);
-    System.out.print(" Z");
-    System.out.print(Z);
-    System.out.print(" | Motor FL");
-    System.out.print(FL);
-    System.out.print(" FR");
-    System.out.print(FR);
-    System.out.print(" BL");
-    System.out.print(BL);
-    System.out.print(" BR");
-    System.out.print(BR);
+    Z = -Z;
 
-    FrontLeft.set(ControlMode.PercentOutput,FL);
-    FrontRight.set(ControlMode.PercentOutput,FR);
-    BackLeft.set(ControlMode.PercentOutput,BL);
-    BackRight.set(ControlMode.PercentOutput,BR);
+    
+    if (m_stick.getRawButton(1)){
+      X = X * 2;
+      Y = Y * 2;
+      Z = Z * 1.25;
+    }
+    else{
+      X = X*.75;
+      Y = Y*.75;
+      Z = Z*.5;
+    }
+
+    //while (m_stick.getRawButton(4)){
+      //button = -button;
+    //}
+    
+    System.out.println(button);
+    if (button == -1){
+      doubleSolenoid.set(Value.kReverse);
+      
+
+      FL = Y+(X+Z);
+      FR = Y-(X+Z);
+      BL = Y-(X-Z);
+      BR = Y+(X-Z);
+
+      //reverses the RIGHT SIDE
+      FR = -FR;
+      BR = -BR;
+    
+      FrontLeft.set(ControlMode.PercentOutput,FL);
+      FrontRight.set(ControlMode.PercentOutput,FR);
+      BackLeft.set(ControlMode.PercentOutput,BL);
+      BackRight.set(ControlMode.PercentOutput,BR);
+    }
+    else {
+      doubleSolenoid.set(Value.kForward);
+
+      m_drive.arcadeDrive(Y, Z);
+      m_BackLeft.follow(m_FrontLeft);
+      m_BackRight.follow(m_FrontRight);
+    }
 
 
   }
 
   @Override
   public void disabledInit() {
+    doubleSolenoid.set(Value.kOff);
   }
 
   @Override
@@ -179,42 +272,18 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     
-
     
-    
-  
     
   }
 
   @Override
   public void testPeriodic() {
-    m_drive.arcadeDrive(m_stick.getY(), m_stick.getX());
-    
-    
-    
-    
-    
-    //for (int i = 1; i <= 100; i++) {
-    //  FrontLeft.set(ControlMode.PercentOutput,i);
-    //  FrontRight.set(ControlMode.PercentOutput,i);
+    doubleSolenoid.set(Value.kForward);
 
-    //}
-
-    /////////////////////////////m_drive.arcadeDrive(m_stick.getY(), m_stick.getX());
-    
-    //joystick part
-    /*
-
-    this is old code!!
-
-    double TankRight = -Y - X;
-    double TankLeft =  -Y + X;
-    
-    
-    FrontLeft.set(ControlMode.PercentOutput, TankLeft);
-    FrontRight.set(ControlMode.PercentOutput,TankRight);
-    */
-
+    Z = m_stick.getZ() * -1;
+    m_drive.arcadeDrive(m_stick.getY(), Z);
+    m_BackLeft.follow(m_FrontLeft);
+    m_BackRight.follow(m_FrontRight);
 
   }
 
