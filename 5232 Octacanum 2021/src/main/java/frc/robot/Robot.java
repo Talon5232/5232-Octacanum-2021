@@ -12,6 +12,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.PigeonIMU;
+
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -60,6 +62,7 @@ public class Robot extends TimedRobot {
   Joystick m_buttons = new Joystick(0);
 
   final JoystickButton k3 = new JoystickButton(m_buttons, 10);
+  PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
 
 
   double FL = 0;
@@ -77,6 +80,8 @@ public class Robot extends TimedRobot {
 
   DoubleSolenoid doubleSolenoid = new DoubleSolenoid(0,1);
 
+  int FLencoder;
+
   
 
   //Solenoid num1 = new Solenoid(0);
@@ -86,7 +91,7 @@ public class Robot extends TimedRobot {
   //boolean enabled = compressor.enabled();
   //boolean pressureSwich = compressor.getPressureSwitchValue();
 
-  
+
 
   /*
 
@@ -116,7 +121,7 @@ public class Robot extends TimedRobot {
     m_BackLeft.follow(m_FrontLeft);
     m_BackRight.follow(m_FrontRight);
     //private final drive m_drive = new drive();
-    
+        
 
     
     
@@ -153,31 +158,19 @@ public class Robot extends TimedRobot {
     //doubleSolenoid.set(Value.kOff);
     //num1.set(true);
     //num2.set(false);
+    FrontLeft.set
+    
+
 
 
   }
 
   @Override
   public void autonomousPeriodic() {
-    X = m_stick.getX();
-      X = -X;
-      Y = m_stick.getY();
-      Z = m_stick.getZ();
-      Z = -Z;
+    System.out.println(FrontLeft.getSelectedSensorPosition());
+    //while (Fwd > 1200);
 
-      FL = Y+(X+Z);
-      FR = Y-(X+Z);
-      BL = Y-(X-Z);
-      BR = Y+(X-Z);
-
-      //reverses the RIGHT SIDE
-      FR = -FR;
-      BR = -BR;
     
-      FrontLeft.set(ControlMode.PercentOutput,FL);
-      FrontRight.set(ControlMode.PercentOutput,FR);
-      BackLeft.set(ControlMode.PercentOutput,BL);
-      BackRight.set(ControlMode.PercentOutput,BR);
   }
 
   @Override
@@ -221,9 +214,9 @@ public class Robot extends TimedRobot {
     if (Math.abs(Z) <= .1){
       Z = 0;
     }
-    System.out.println(X);
-    System.out.println(Y);
-    System.out.println(Z);
+    //System.out.println(X);
+    //System.out.println(Y);
+    //System.out.println(Z);
     Z = -Z;
     X = -X;
 
@@ -244,8 +237,6 @@ public class Robot extends TimedRobot {
     //while (m_stick.getRawButton(4)){
       //button = -button;
     //}
-    
-    System.out.println(button);
     if (button == -1){
       doubleSolenoid.set(Value.kReverse);
       
