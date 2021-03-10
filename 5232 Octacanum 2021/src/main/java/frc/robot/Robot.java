@@ -70,6 +70,13 @@ public class Robot extends TimedRobot {
   double BL = 0;
   double BR = 0;
 
+  int FRpos;
+  int FLpos;
+  int FirstGoal;
+  double AutoSpeed = .08;
+  double AutoRSpeed = AutoSpeed;
+  double AutoLSpeed = AutoSpeed * -1;
+
   public double Y = .1;
   public double X = 0;
   public double Z = 0;
@@ -133,42 +140,45 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    //k3.whenPressed(new drive());
-    
-    
-    
-    /*System.out.println(POwa);
-    FXtest.set(ControlMode.PercentOutput,POwa);
-    POwa = POwa - 1;
-    */
-    
-
-    
   }
 
   @Override
   public void autonomousInit() {
-    /*for (int i = 1; i <= 100; i++) {
-    
-    final int Speed = 100 - i;
-    System.out.println(i);
-    FXtest.set(ControlMode.PercentOutput,Speed);
-    }
-    */
-    //doubleSolenoid.set(Value.kOff);
-    //num1.set(true);
-    //num2.set(false);
-    FrontLeft.set
-    
+    m_FrontLeft.setSelectedSensorPosition(0);
+    m_FrontRight.setSelectedSensorPosition(0);
+    m_BackLeft.setSelectedSensorPosition(0);
+    m_BackRight.setSelectedSensorPosition(0);
 
-
+    FirstGoal = 100;
 
   }
 
   @Override
   public void autonomousPeriodic() {
-    System.out.println(FrontLeft.getSelectedSensorPosition());
-    //while (Fwd > 1200);
+    doubleSolenoid.set(Value.kForward);
+    System.out.println(FRpos);
+    System.out.print("  ");
+    System.out.print(FrontRight.getSelectedSensorPosition());
+    System.out.print("  ");
+    //System.out.print(BackRight.getSelectedSensorPosition());
+    //System.out.print("  ");
+    //System.out.print(BackLeft.getSelectedSensorPosition());
+    //System.out.print("  ");
+    FRpos = FrontRight.getSelectedSensorPosition();
+    FLpos = FrontLeft.getSelectedSensorPosition() * -1;
+    
+    
+
+    if (FRpos <= FirstGoal){
+      FrontRight.set(ControlMode.PercentOutput, AutoRSpeed);
+    }
+
+    if (FLpos <= FirstGoal){
+      FrontLeft.set(ControlMode.PercentOutput, AutoLSpeed);
+    }
+    m_BackLeft.follow(m_FrontLeft);
+    m_BackRight.follow(m_FrontRight);
+
 
     
   }
@@ -234,9 +244,7 @@ public class Robot extends TimedRobot {
       Z = Z*.5;
     }
 
-    //while (m_stick.getRawButton(4)){
-      //button = -button;
-    //}
+    
     if (button == -1){
       doubleSolenoid.set(Value.kReverse);
       
