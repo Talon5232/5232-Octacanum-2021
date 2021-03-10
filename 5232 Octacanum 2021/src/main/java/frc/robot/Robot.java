@@ -126,6 +126,9 @@ public class Robot extends TimedRobot {
     BackLeft.setNeutralMode(NeutralMode.Brake);
     
     m_BackLeft.follow(m_FrontLeft);
+    m_BackRight.follow(m_FrontRight);
+    System.out.println("-----------------Start of the program-----------------");
+  }
   public void robotPeriodic() {
   }
 
