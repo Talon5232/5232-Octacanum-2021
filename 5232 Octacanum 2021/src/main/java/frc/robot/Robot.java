@@ -13,18 +13,17 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
-
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 //currently unused
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.buttons.Trigger;
 import edu.wpi.first.wpilibj.command.PrintCommand;
 import edu.wpi.first.wpilibj.command.WaitCommand;
@@ -70,12 +69,16 @@ public class Robot extends TimedRobot {
   double BL = 0;
   double BR = 0;
 
+  double FRlevel;
+  double FLlevel;
+
   int FRpos;
   int FLpos;
   int FirstGoal;
   double AutoSpeed = .08;
   double AutoRSpeed = AutoSpeed;
   double AutoLSpeed = AutoSpeed * -1;
+  double multi;
 
   public double Y = .1;
   public double X = 0;
@@ -89,17 +92,8 @@ public class Robot extends TimedRobot {
 
   int FLencoder;
 
-  
-
-  //Solenoid num1 = new Solenoid(0);
-  //Solenoid num2 = new Solenoid(1);
 
   Compressor compressor = new Compressor(0);
-  //boolean enabled = compressor.enabled();
-  //boolean pressureSwich = compressor.getPressureSwitchValue();
-
-
-
   /*
 
 
@@ -118,7 +112,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    //I am also going to use this as a sort of constants place
     
     FrontLeft.setNeutralMode(NeutralMode.Brake);
     FrontRight.setNeutralMode(NeutralMode.Brake);
@@ -139,38 +132,39 @@ public class Robot extends TimedRobot {
     m_BackLeft.setSelectedSensorPosition(0);
     m_BackRight.setSelectedSensorPosition(0);
 
-    FirstGoal = 100;
+    FirstGoal = 130000;
+    multi = .0000035;
+
+    while (FRpos + FLpos < (FirstGoal *2) - 55900){
+
+
+      FRpos = FrontRight.getSelectedSensorPosition();
+      FLpos = FrontLeft.getSelectedSensorPosition() * -1;
+    
+      FRlevel = (FirstGoal - FRpos)*multi;
+      if (FRpos != FirstGoal){
+        FrontRight.set(ControlMode.PercentOutput, FRlevel);
+      }
+      
+      FLlevel = (FirstGoal - FLpos)*multi;
+      FLlevel = FLlevel * -1;
+      if (FLpos != FirstGoal){
+        FrontLeft.set(ControlMode.PercentOutput, FLlevel);
+      }
+      }
+    
 
   }
 
   @Override
   public void autonomousPeriodic() {
     doubleSolenoid.set(Value.kForward);
-    System.out.println(FRpos);
+    System.out.println(FRlevel);
     System.out.print("  ");
     System.out.print(FrontRight.getSelectedSensorPosition());
     System.out.print("  ");
-    //System.out.print(BackRight.getSelectedSensorPosition());
-    //System.out.print("  ");
-    //System.out.print(BackLeft.getSelectedSensorPosition());
-    //System.out.print("  ");
     FRpos = FrontRight.getSelectedSensorPosition();
-    FLpos = FrontLeft.getSelectedSensorPosition() * -1;
-    
-    
-
-    if (FRpos <= FirstGoal){
-      FrontRight.set(ControlMode.PercentOutput, AutoRSpeed);
-    }
-
-    if (FLpos <= FirstGoal){
-      FrontLeft.set(ControlMode.PercentOutput, AutoLSpeed);
-    }
-    m_BackLeft.follow(m_FrontLeft);
-    m_BackRight.follow(m_FrontRight);
-
-
-    
+    FLpos = FrontLeft.getSelectedSensorPosition() * -1;    
   }
 
   @Override
@@ -214,14 +208,14 @@ public class Robot extends TimedRobot {
     if (Math.abs(Z) <= .1){
       Z = 0;
     }
-    //System.out.println(X);
-    //System.out.println(Y);
-    //System.out.println(Z);
     Z = -Z;
     X = -X;
 
     
 
+    /*
+    
+    dont use this anymore because I moved it seperatly
     
     if (m_stick.getRawButton(1)){
       X = X * 2;
@@ -233,10 +227,21 @@ public class Robot extends TimedRobot {
       Y = Y*.75;
       Z = Z*.5;
     }
+    */
 
     
     if (button == -1){
       doubleSolenoid.set(Value.kReverse);
+      if (m_stick.getRawButton(1)){
+        X = X * 2;
+        Y = Y * 2;
+        Z = Z * 1.25;
+      }
+      else{
+        X = X*.5;
+        Y = Y*.5;
+        Z = Z*.25;
+      }
       
 
       FL = Y+(X+Z);
@@ -255,6 +260,16 @@ public class Robot extends TimedRobot {
     }
     else {
       doubleSolenoid.set(Value.kForward);
+      if (m_stick.getRawButton(1)){
+        X = X * 2;
+        Y = Y * 2;
+        Z = Z * 1.25;
+      }
+      else{
+        X = X*.75;
+        Y = Y*.75;
+        Z = Z*.5;
+      }
 
       m_drive.arcadeDrive(Y, Z);
       m_BackLeft.follow(m_FrontLeft);
@@ -281,13 +296,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {
-    doubleSolenoid.set(Value.kForward);
-
-    Z = m_stick.getZ() * -1;
-    m_drive.arcadeDrive(m_stick.getY(), Z);
-    m_BackLeft.follow(m_FrontLeft);
-    m_BackRight.follow(m_FrontRight);
+  public void testPeriodic(){
 
   }
 
