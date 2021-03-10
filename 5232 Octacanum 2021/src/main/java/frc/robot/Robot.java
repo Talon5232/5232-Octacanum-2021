@@ -120,19 +120,6 @@ public class Robot extends TimedRobot {
     BackLeft.setNeutralMode(NeutralMode.Brake);
     
     m_BackLeft.follow(m_FrontLeft);
-    m_BackRight.follow(m_FrontRight);
-    //private final drive m_drive = new drive();
-        
-
-    
-    
-
-    System.out.println("-----------------Start of the program-----------------");
-    FXtest.set(ControlMode.PercentOutput,0);
-
-  }
-
-  @Override
   public void robotPeriodic() {
     //k3.whenPressed(new drive());
     
