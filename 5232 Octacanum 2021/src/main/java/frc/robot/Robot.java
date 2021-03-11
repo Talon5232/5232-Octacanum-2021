@@ -64,8 +64,9 @@ public class Robot extends TimedRobot {
 
   final JoystickButton k3 = new JoystickButton(m_buttons, 10);
 
+  PigeonIMU _pigeon = new PigeonIMU(0);
   PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
-  PigeonIMU Internal = new PigeonIMU(14);//edit this!!
+  double InternalX;
 
 
   double FL = 0;
@@ -300,6 +301,10 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic(){
     System.out.println(genStatus);
+    
+    InternalX = _pigeon.getX;
+    System.out.println(InternalX);
+
     
 
 
