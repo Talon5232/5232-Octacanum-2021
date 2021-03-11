@@ -32,6 +32,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -53,6 +54,7 @@ public class Robot extends TimedRobot {
   
   WPI_TalonFX m_BackLeft = new WPI_TalonFX(17);
   
+  
 
   WPI_TalonFX m_BackRight = new WPI_TalonFX(18);
 
@@ -61,7 +63,9 @@ public class Robot extends TimedRobot {
   Joystick m_buttons = new Joystick(0);
 
   final JoystickButton k3 = new JoystickButton(m_buttons, 10);
+
   PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
+  PigeonIMU Internal = new PigeonIMU(14);//edit this!!
 
 
   double FL = 0;
@@ -290,13 +294,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    
-    
-    
+    // look here for CAN testing to say its the wiring https://docs.ctre-phoenix.com/en/latest/ch08_BringUpCAN.html#approach-1-best
   }
 
   @Override
   public void testPeriodic(){
+    System.out.println(genStatus);
+    
+
+
 
   }
 
