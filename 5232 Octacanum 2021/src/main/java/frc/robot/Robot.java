@@ -31,6 +31,8 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import com.ctre.phoenix.music.Orchestra;
+
 
 
 /**
@@ -67,6 +69,8 @@ public class Robot extends TimedRobot {
   PigeonIMU _pigeon = new PigeonIMU(0);
   PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
   double InternalX;
+  double InternalZ;
+  double InternalY;
 
 
   double FL = 0;
@@ -296,6 +300,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     // look here for CAN testing to say its the wiring https://docs.ctre-phoenix.com/en/latest/ch08_BringUpCAN.html#approach-1-best
+
   }
 
   @Override
@@ -303,7 +308,13 @@ public class Robot extends TimedRobot {
     System.out.println(genStatus);
     
     InternalX = _pigeon.getX;
+    InternalY = _pigeon.getY;
+    InternalZ = _pigeon.getZ;
     System.out.println(InternalX);
+    System.out.print("--");
+    System.out.print(InternalY);
+    System.out.print("--");
+    System.out.print(InternalZ);
 
     
 
