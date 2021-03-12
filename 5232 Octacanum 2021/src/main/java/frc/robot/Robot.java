@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import jdk.internal.platform.Container;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
@@ -43,9 +44,7 @@ import com.ctre.phoenix.music.Orchestra;
  * project.
  */
 public class Robot extends TimedRobot {
-
-  TalonFX FXtest = new TalonFX(15);
-
+  //Motor declaring and motor control variables
   TalonFX FrontLeft = new TalonFX(16);
   TalonFX FrontRight = new TalonFX(15);
   TalonFX BackLeft = new TalonFX(17);
@@ -53,64 +52,52 @@ public class Robot extends TimedRobot {
 
   WPI_TalonFX m_FrontLeft = new WPI_TalonFX(16);
   WPI_TalonFX m_FrontRight = new WPI_TalonFX(15);
-  
   WPI_TalonFX m_BackLeft = new WPI_TalonFX(17);
-  
-  
-
   WPI_TalonFX m_BackRight = new WPI_TalonFX(18);
-
-
-  private final Joystick m_stick = new Joystick(0);
-  Joystick m_buttons = new Joystick(0);
-
-  final JoystickButton k3 = new JoystickButton(m_buttons, 10);
-
-  PigeonIMU _pigeon = new PigeonIMU(0);
-  PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
-  double InternalX;
-  double InternalZ;
-  double InternalY;
-
 
   double FL = 0;
   double FR = 0;
   double BL = 0;
   double BR = 0;
 
+  //controller declaring and setting up buttons
+  private final Joystick m_stick = new Joystick(0);
+  Joystick m_buttons = new Joystick(0);
+  final JoystickButton k3 = new JoystickButton(m_buttons, 10);
+  //variables that are assigned to each axis of the joystick
+  public double Y;
+  public double X;
+  public double Z;
+
+  //Pigeon IMU declaring and variables for it
+  PigeonIMU _pigeon = new PigeonIMU(0);
+  PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
+  double InternalX;
+  double InternalZ;
+  double InternalY;
+  double TurnGoal;
+  double MRot;
+
+  //auto variables
+  int FirstGoal;
+  double multi;
+  double RotMulti;
+  
+  //motor value for auto
   double FRlevel;
   double FLlevel;
 
+  //motor encoder value variables for auto
   int FRpos;
   int FLpos;
-  int FirstGoal;
-  double AutoSpeed = .08;
-  double AutoRSpeed = AutoSpeed;
-  double AutoLSpeed = AutoSpeed * -1;
-  double multi;
+  
 
-  public double Y = .1;
-  public double X = 0;
-  public double Z = 0;
-
+  //pnumatics decleration and variables
   int compr;
-
   int button;
-
   DoubleSolenoid doubleSolenoid = new DoubleSolenoid(0,1);
-
   int FLencoder;
-
-
   Compressor compressor = new Compressor(0);
-  /*
-
-
-  public void setMaxOutput(double maxOutput) {
-    m_drive.setMaxOutput(maxOutput * .8);
-  }
-  */
-
 
   private final DifferentialDrive m_drive = new DifferentialDrive(m_FrontLeft,m_FrontRight);
 
@@ -136,6 +123,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    //resetting encoder values
     m_FrontLeft.setSelectedSensorPosition(0);
     m_FrontRight.setSelectedSensorPosition(0);
     m_BackLeft.setSelectedSensorPosition(0);
@@ -145,8 +133,7 @@ public class Robot extends TimedRobot {
     multi = .0000035;
 
     while (FRpos + FLpos < (FirstGoal *2) - 55900){
-
-
+      
       FRpos = FrontRight.getSelectedSensorPosition();
       FLpos = FrontLeft.getSelectedSensorPosition() * -1;
     
@@ -161,6 +148,31 @@ public class Robot extends TimedRobot {
         FrontLeft.set(ControlMode.PercentOutput, FLlevel);
       }
       }
+      
+      
+      TurnGoal = .6;
+      RotMulti = .0000035;
+    
+    
+      //rotation code
+    while ((TurnGoal - InternalZ)<0){
+      //dont know why this part of the code is not compiling{
+      InternalX = _pigeon.getX;
+      InternalY = _pigeon.getY;
+      InternalZ = _pigeon.getZ;
+      //}
+      MRot = (TurnGoal - InternalZ) * RotMulti;
+      if (TurnGoal < 0){//left
+        FrontLeft.set(ControlMode.PercentOutput, MRot);
+        FrontRight.set(ControlMode.PercentOutput, MRot);
+      }
+      else{//right
+        MRot = MRot * -1;
+        FrontLeft.set(ControlMode.PercentOutput, MRot);
+        FrontRight.set(ControlMode.PercentOutput, MRot);
+      }
+
+    }
     
 
   }
@@ -300,13 +312,14 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     // look here for CAN testing to say its the wiring https://docs.ctre-phoenix.com/en/latest/ch08_BringUpCAN.html#approach-1-best
+    // I CANT PROGRAM without the CAN ID.  So if it doesnt show up on CAN and is not connected electricly, I CANT PROGRAM IT!!!!
 
   }
 
   @Override
   public void testPeriodic(){
+    /*
     System.out.println(genStatus);
-    
     InternalX = _pigeon.getX;
     InternalY = _pigeon.getY;
     InternalZ = _pigeon.getZ;
@@ -315,6 +328,7 @@ public class Robot extends TimedRobot {
     System.out.print(InternalY);
     System.out.print("--");
     System.out.print(InternalZ);
+    */
 
     
 
