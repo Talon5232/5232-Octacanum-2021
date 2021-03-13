@@ -14,7 +14,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import jdk.internal.platform.Container;
+//import jdk.internal.platform.Container;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
@@ -50,11 +50,13 @@ public class Robot extends TimedRobot {
   TalonFX BackLeft = new TalonFX(17);
   TalonFX BackRight = new TalonFX(18);
 
+  //using the motors with the WPI allows it to work with the tank drive function among other things
   WPI_TalonFX m_FrontLeft = new WPI_TalonFX(16);
   WPI_TalonFX m_FrontRight = new WPI_TalonFX(15);
   WPI_TalonFX m_BackLeft = new WPI_TalonFX(17);
   WPI_TalonFX m_BackRight = new WPI_TalonFX(18);
 
+  //these are for the math that comes when controlling the motors instead of having to do the math within the motor controlling lines
   double FL = 0;
   double FR = 0;
   double BL = 0;
@@ -71,12 +73,10 @@ public class Robot extends TimedRobot {
 
   //Pigeon IMU declaring and variables for it
   PigeonIMU _pigeon = new PigeonIMU(0);
-  PigeonIMU.GeneralStatus genStatus = new PigeonIMU.GeneralStatus();
-  double InternalX;
   double InternalZ;
-  double InternalY;
   double TurnGoal;
   double MRot;
+  double [] ypr = new double[3];
 
   //auto variables
   int FirstGoal;
@@ -99,6 +99,7 @@ public class Robot extends TimedRobot {
   int FLencoder;
   Compressor compressor = new Compressor(0);
 
+  //setup code for the tank drive mode
   private final DifferentialDrive m_drive = new DifferentialDrive(m_FrontLeft,m_FrontRight);
 
 
@@ -108,14 +109,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    
+    //sets up the motors to brake rather then coast when no power is applied
     FrontLeft.setNeutralMode(NeutralMode.Brake);
     FrontRight.setNeutralMode(NeutralMode.Brake);
     BackRight.setNeutralMode(NeutralMode.Brake);
     BackLeft.setNeutralMode(NeutralMode.Brake);
     
+    //makes the back motors follow the front ones in the tank drive because it uses the WPI
     m_BackLeft.follow(m_FrontLeft);
     m_BackRight.follow(m_FrontRight);
+
+    //just a quick line so you can see when the robot init code happens
     System.out.println("-----------------Start of the program-----------------");
   }
   public void robotPeriodic() {
@@ -129,19 +133,23 @@ public class Robot extends TimedRobot {
     m_BackLeft.setSelectedSensorPosition(0);
     m_BackRight.setSelectedSensorPosition(0);
 
+    //I use these variables to quickly find and set the goal and proportional multiplyer
+    //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
     FirstGoal = 130000;
     multi = .0000035;
 
+    //todo: learn how to have this is another file so it doesnt take up space here
+    //this part corrects for it moving past it V
     while (FRpos + FLpos < (FirstGoal *2) - 55900){
-      
+      //this gets the encoder position and reverses the other one because the motors are reversed from left to right
       FRpos = FrontRight.getSelectedSensorPosition();
       FLpos = FrontLeft.getSelectedSensorPosition() * -1;
-    
+      //does the math of what the right side percent output is
       FRlevel = (FirstGoal - FRpos)*multi;
       if (FRpos != FirstGoal){
         FrontRight.set(ControlMode.PercentOutput, FRlevel);
       }
-      
+      //does the math of what the left side percent output is
       FLlevel = (FirstGoal - FLpos)*multi;
       FLlevel = FLlevel * -1;
       if (FLpos != FirstGoal){
@@ -149,19 +157,18 @@ public class Robot extends TimedRobot {
       }
       }
       
-      
+      //same as above but for turning
       TurnGoal = .6;
       RotMulti = .0000035;
     
     
       //rotation code
     while ((TurnGoal - InternalZ)<0){
-      //dont know why this part of the code is not compiling{
-      InternalX = _pigeon.getX;
-      InternalY = _pigeon.getY;
-      InternalZ = _pigeon.getZ;
-      //}
+      _pigeon.getYawPitchRoll(ypr);
+      InternalZ = ypr[0];
       MRot = (TurnGoal - InternalZ) * RotMulti;
+      
+      //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
       if (TurnGoal < 0){//left
         FrontLeft.set(ControlMode.PercentOutput, MRot);
         FrontRight.set(ControlMode.PercentOutput, MRot);
@@ -179,6 +186,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    //I dont really need this but it helps to see when the init or main auto code is done
     doubleSolenoid.set(Value.kForward);
     System.out.println(FRlevel);
     System.out.print("  ");
@@ -190,6 +198,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    //this sets up the variables that are used to select stuff
     button = 1;
     compr = 1;
 
@@ -197,6 +206,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    //here it sets up when the buttons on the controllers are pressed
     if (m_stick.getRawButton(4)){
       button = -1;
     }
@@ -209,6 +219,7 @@ public class Robot extends TimedRobot {
     if (m_stick.getRawButton(5)){
       compr = 1;
     }
+    //here it turns on and off the compressor
     if (compr == 1){
       compressor.start();
     }
@@ -216,10 +227,12 @@ public class Robot extends TimedRobot {
       compressor.stop();
     }
 
+    //this sets the X Y and Z of the joystick each period
     X = m_stick.getX();
     Y = m_stick.getY();
     Z = m_stick.getZ();
     
+    //this sets up deadzones with Math.abs(var) to get the absolute value
     if (Math.abs(X) <= .1){
       X = 0;
     }
@@ -229,30 +242,16 @@ public class Robot extends TimedRobot {
     if (Math.abs(Z) <= .1){
       Z = 0;
     }
+    //this reverses the Z and X so it works with my code
     Z = -Z;
     X = -X;
 
-    
-
-    /*
-    
-    dont use this anymore because I moved it seperatly
-    
-    if (m_stick.getRawButton(1)){
-      X = X * 2;
-      Y = Y * 2;
-      Z = Z * 1.25;
-    }
-    else{
-      X = X*.75;
-      Y = Y*.75;
-      Z = Z*.5;
-    }
-    */
-
-    
+    //this is if the button is in mechanum mode
     if (button == -1){
+      //opens the solenoid to the mechanum mode
       doubleSolenoid.set(Value.kReverse);
+
+      //this does the "turbo mode" so you can tune it seperatly from the tank drive
       if (m_stick.getRawButton(1)){
         X = X * 2;
         Y = Y * 2;
@@ -329,6 +328,8 @@ public class Robot extends TimedRobot {
     System.out.print("--");
     System.out.print(InternalZ);
     */
+    _pigeon.getYawPitchRoll(ypr);
+    System.out.println("Yaw:" + ypr[0]);
 
     
 
