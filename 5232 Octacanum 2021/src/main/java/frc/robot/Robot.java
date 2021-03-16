@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
@@ -71,6 +72,8 @@ public class Robot extends TimedRobot {
   public double X;
   public double Z;
 
+
+  int loopTime;
   //Pigeon IMU declaring and variables for it
   PigeonIMU _pigeon = new PigeonIMU(0);
   double InternalZ;
@@ -101,6 +104,8 @@ public class Robot extends TimedRobot {
 
   //setup code for the tank drive mode
   private final DifferentialDrive m_drive = new DifferentialDrive(m_FrontLeft,m_FrontRight);
+  Relay fan1 = new Relay(1);
+  //Relay fan2 = new Relay(0)
 
 
   /**
@@ -121,17 +126,21 @@ public class Robot extends TimedRobot {
 
     //just a quick line so you can see when the robot init code happens
     System.out.println("-----------------Start of the program-----------------");
+    _pigeon.setYaw(0);
   }
   public void robotPeriodic() {
   }
 
   @Override
   public void autonomousInit() {
+    /*
     //resetting encoder values
     m_FrontLeft.setSelectedSensorPosition(0);
     m_FrontRight.setSelectedSensorPosition(0);
     m_BackLeft.setSelectedSensorPosition(0);
     m_BackRight.setSelectedSensorPosition(0);
+    int kTimeoutMs = 50;
+    _pigeon.setYaw(0,kTimeoutMs);
 
     //I use these variables to quickly find and set the goal and proportional multiplyer
     //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
@@ -158,42 +167,97 @@ public class Robot extends TimedRobot {
       }
       
       //same as above but for turning
-      TurnGoal = .6;
-      RotMulti = .0000035;
+      TurnGoal = 195;
+      RotMulti = .005;
     
     
       //rotation code
-    while ((TurnGoal - InternalZ)<0){
+    while ((TurnGoal - InternalZ)>15){
       _pigeon.getYawPitchRoll(ypr);
+      System.out.println("yaw is " + ypr[0]);
       InternalZ = ypr[0];
       MRot = (TurnGoal - InternalZ) * RotMulti;
       
       //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
-      if (TurnGoal < 0){//left
+      if (TurnGoal < 0){//right
+        MRot = MRot * -1;
         FrontLeft.set(ControlMode.PercentOutput, MRot);
         FrontRight.set(ControlMode.PercentOutput, MRot);
       }
-      else{//right
-        MRot = MRot * -1;
+      else{//left
         FrontLeft.set(ControlMode.PercentOutput, MRot);
         FrontRight.set(ControlMode.PercentOutput, MRot);
       }
 
     }
-    
+    */
 
   }
 
   @Override
   public void autonomousPeriodic() {
-    //I dont really need this but it helps to see when the init or main auto code is done
-    doubleSolenoid.set(Value.kForward);
-    System.out.println(FRlevel);
-    System.out.print("  ");
-    System.out.print(FrontRight.getSelectedSensorPosition());
-    System.out.print("  ");
-    FRpos = FrontRight.getSelectedSensorPosition();
-    FLpos = FrontLeft.getSelectedSensorPosition() * -1;    
+    loopTime = 0;
+    if (loopTime < 1){
+      loopTime = 2;
+      //resetting encoder values
+    m_FrontLeft.setSelectedSensorPosition(0);
+    m_FrontRight.setSelectedSensorPosition(0);
+    m_BackLeft.setSelectedSensorPosition(0);
+    m_BackRight.setSelectedSensorPosition(0);
+    int kTimeoutMs = 50;
+    _pigeon.setYaw(0,kTimeoutMs);
+
+    //I use these variables to quickly find and set the goal and proportional multiplyer
+    //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
+    FirstGoal = 260000;
+    multi = .0000035;
+
+    //todo: learn how to have this is another file so it doesnt take up space here
+    //this part corrects for it moving past it V
+    while (FRpos + FLpos < (FirstGoal *2) - 55900){
+      //this gets the encoder position and reverses the other one because the motors are reversed from left to right
+      FRpos = FrontRight.getSelectedSensorPosition();
+      FLpos = FrontLeft.getSelectedSensorPosition() * -1;
+      //does the math of what the right side percent output is
+      FRlevel = (FirstGoal - FRpos)*multi;
+      if (FRpos != FirstGoal){
+        FrontRight.set(ControlMode.PercentOutput, FRlevel);
+      }
+      //does the math of what the left side percent output is
+      FLlevel = (FirstGoal - FLpos)*multi;
+      FLlevel = FLlevel * -1;
+      if (FLpos != FirstGoal){
+        FrontLeft.set(ControlMode.PercentOutput, FLlevel);
+      }
+      }
+      
+      //same as above but for turning
+      TurnGoal = 195;
+      RotMulti = .005;
+    
+    
+      //rotation code
+    while ((TurnGoal - InternalZ)>15){
+      _pigeon.getYawPitchRoll(ypr);
+      System.out.println("yaw is " + ypr[0]);
+      InternalZ = ypr[0];
+      MRot = (TurnGoal - InternalZ) * RotMulti;
+      
+      //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
+      if (TurnGoal < 0){//right
+        MRot = MRot * -1;
+        FrontLeft.set(ControlMode.PercentOutput, MRot);
+        FrontRight.set(ControlMode.PercentOutput, MRot);
+      }
+      else{//left
+        FrontLeft.set(ControlMode.PercentOutput, MRot);
+        FrontRight.set(ControlMode.PercentOutput, MRot);
+      }
+
+    }
+
+
+    }    
   }
 
   @Override
@@ -201,12 +265,20 @@ public class Robot extends TimedRobot {
     //this sets up the variables that are used to select stuff
     button = 1;
     compr = 1;
+    int kTimeoutMs = 50;
+    _pigeon.setYaw(0,kTimeoutMs);
+    System.out.println("print");
+
+    _pigeon.getYawPitchRoll(ypr);
+    System.out.println(ypr[0]);
 
   }
 
   @Override
   public void teleopPeriodic() {
     //here it sets up when the buttons on the controllers are pressed
+    _pigeon.getYawPitchRoll(ypr);
+    System.out.println(ypr[0]);
     if (m_stick.getRawButton(4)){
       button = -1;
     }
@@ -310,28 +382,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    // look here for CAN testing to say its the wiring https://docs.ctre-phoenix.com/en/latest/ch08_BringUpCAN.html#approach-1-best
-    // I CANT PROGRAM without the CAN ID.  So if it doesnt show up on CAN and is not connected electricly, I CANT PROGRAM IT!!!!
 
   }
 
   @Override
   public void testPeriodic(){
-    /*
-    System.out.println(genStatus);
-    InternalX = _pigeon.getX;
-    InternalY = _pigeon.getY;
-    InternalZ = _pigeon.getZ;
-    System.out.println(InternalX);
-    System.out.print("--");
-    System.out.print(InternalY);
-    System.out.print("--");
-    System.out.print(InternalZ);
-    */
-    _pigeon.getYawPitchRoll(ypr);
-    System.out.println("Yaw:" + ypr[0]);
+    fan1.set(Relay.Value.kOff);
 
-    
+     
 
 
 
