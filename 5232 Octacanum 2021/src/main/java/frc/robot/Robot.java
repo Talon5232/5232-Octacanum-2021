@@ -72,6 +72,8 @@ public class Robot extends TimedRobot {
   public double X;
   public double Z;
 
+  int fans;
+
 
   int loopTime;
   //Pigeon IMU declaring and variables for it
@@ -104,7 +106,7 @@ public class Robot extends TimedRobot {
 
   //setup code for the tank drive mode
   private final DifferentialDrive m_drive = new DifferentialDrive(m_FrontLeft,m_FrontRight);
-  Relay fan1 = new Relay(1);
+  Relay fan1 = new Relay(0);
   //Relay fan2 = new Relay(0)
 
 
@@ -271,12 +273,14 @@ public class Robot extends TimedRobot {
 
     _pigeon.getYawPitchRoll(ypr);
     System.out.println(ypr[0]);
+    fans = 0;
 
   }
 
   @Override
   public void teleopPeriodic() {
     //here it sets up when the buttons on the controllers are pressed
+    
     _pigeon.getYawPitchRoll(ypr);
     System.out.println(ypr[0]);
     if (m_stick.getRawButton(4)){
@@ -291,12 +295,24 @@ public class Robot extends TimedRobot {
     if (m_stick.getRawButton(5)){
       compr = 1;
     }
+    if (m_stick.getRawButton(7)){
+      fans = 0;
+    }
+    if (m_stick.getRawButton(8)){
+      fans = 1;
+    }
     //here it turns on and off the compressor
     if (compr == 1){
       compressor.start();
     }
     else{
       compressor.stop();
+    }
+    if (fans == 1){
+      fan1.set(Relay.Value.kForward);
+    }
+    else{
+      fan1.set(Relay.Value.kReverse);
     }
 
     //this sets the X Y and Z of the joystick each period
@@ -387,7 +403,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic(){
-    fan1.set(Relay.Value.kOff);
+    fan1.set(Relay.Value.kForward);
 
      
 
