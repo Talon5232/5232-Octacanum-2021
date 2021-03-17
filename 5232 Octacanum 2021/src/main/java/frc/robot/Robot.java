@@ -35,6 +35,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import com.ctre.phoenix.music.Orchestra;
 
+//com.ctre.phoenix.music.Orchestra.Orchestra(Collection<FrontLeft> instruments
+//string C:\Users\htown\Documents\GitHub\mateos git things\5232-Octacanum-2021\5232 Octacanum 2021\src\main\deploy\nuh.chrp
+//)
+
 
 
 /**
@@ -45,6 +49,7 @@ import com.ctre.phoenix.music.Orchestra;
  * project.
  */
 public class Robot extends TimedRobot {
+  Orchestra _orchestra;
   //Motor declaring and motor control variables
   TalonFX FrontLeft = new TalonFX(16);
   TalonFX FrontRight = new TalonFX(15);
@@ -129,6 +134,7 @@ public class Robot extends TimedRobot {
     //just a quick line so you can see when the robot init code happens
     System.out.println("-----------------Start of the program-----------------");
     _pigeon.setYaw(0);
+   // _orchestra = new Orchestra(FrontRight);
   }
   public void robotPeriodic() {
   }
@@ -199,7 +205,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     loopTime = 0;
+    //doubleSolenoid.set(Value.kForward);
     if (loopTime < 1){
+      System.out.println("hey");
       loopTime = 2;
       //resetting encoder values
     m_FrontLeft.setSelectedSensorPosition(0);
@@ -211,7 +219,7 @@ public class Robot extends TimedRobot {
 
     //I use these variables to quickly find and set the goal and proportional multiplyer
     //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
-    FirstGoal = 260000;
+    FirstGoal = 200000;
     multi = .0000035;
 
     //todo: learn how to have this is another file so it doesnt take up space here
@@ -234,12 +242,12 @@ public class Robot extends TimedRobot {
       }
       
       //same as above but for turning
-      TurnGoal = 195;
+      TurnGoal = -105;
       RotMulti = .005;
     
     
       //rotation code
-    while ((TurnGoal - InternalZ)>15){
+    while (Math.abs((TurnGoal - InternalZ))>15){
       _pigeon.getYawPitchRoll(ypr);
       System.out.println("yaw is " + ypr[0]);
       InternalZ = ypr[0];
@@ -247,7 +255,7 @@ public class Robot extends TimedRobot {
       
       //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
       if (TurnGoal < 0){//right
-        MRot = MRot * -1;
+        //MRot = MRot * -1;
         FrontLeft.set(ControlMode.PercentOutput, MRot);
         FrontRight.set(ControlMode.PercentOutput, MRot);
       }
@@ -259,7 +267,8 @@ public class Robot extends TimedRobot {
     }
 
 
-    }    
+    }
+    loopTime = 2;    
   }
 
   @Override
@@ -398,6 +407,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    //com.ctre.phoenix.music.Orchestra.Orchestra(Collection<FrontLeft, FrontRight>)
+    //Orchestra =  _Orchestra(Collection<m_FrontLeft>, String C:\Users\htown\Documents\GitHub\mateos git things\5232-Octacanum-2021\5232 Octacanum 2021\src\main\deploy\nuh.chrp);
 
   }
 
