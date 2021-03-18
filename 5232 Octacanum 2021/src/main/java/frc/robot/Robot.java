@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -14,7 +16,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-//import jdk.internal.platform.Container;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
@@ -89,7 +90,7 @@ public class Robot extends TimedRobot {
   double [] ypr = new double[3];
 
   //auto variables
-  int FirstGoal;
+  double FirstGoal;
   double multi;
   double RotMulti;
   
@@ -100,6 +101,8 @@ public class Robot extends TimedRobot {
   //motor encoder value variables for auto
   int FRpos;
   int FLpos;
+
+  double goalFt;
   
 
   //pnumatics decleration and variables
@@ -141,96 +144,73 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    /*
-    //resetting encoder values
-    m_FrontLeft.setSelectedSensorPosition(0);
-    m_FrontRight.setSelectedSensorPosition(0);
-    m_BackLeft.setSelectedSensorPosition(0);
-    m_BackRight.setSelectedSensorPosition(0);
-    int kTimeoutMs = 50;
-    _pigeon.setYaw(0,kTimeoutMs);
-
-    //I use these variables to quickly find and set the goal and proportional multiplyer
-    //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
-    FirstGoal = 130000;
-    multi = .0000035;
-
-    //todo: learn how to have this is another file so it doesnt take up space here
-    //this part corrects for it moving past it V
-    while (FRpos + FLpos < (FirstGoal *2) - 55900){
-      //this gets the encoder position and reverses the other one because the motors are reversed from left to right
-      FRpos = FrontRight.getSelectedSensorPosition();
-      FLpos = FrontLeft.getSelectedSensorPosition() * -1;
-      //does the math of what the right side percent output is
-      FRlevel = (FirstGoal - FRpos)*multi;
-      if (FRpos != FirstGoal){
-        FrontRight.set(ControlMode.PercentOutput, FRlevel);
-      }
-      //does the math of what the left side percent output is
-      FLlevel = (FirstGoal - FLpos)*multi;
-      FLlevel = FLlevel * -1;
-      if (FLpos != FirstGoal){
-        FrontLeft.set(ControlMode.PercentOutput, FLlevel);
-      }
-      }
-      
-      //same as above but for turning
-      TurnGoal = 195;
-      RotMulti = .005;
-    
-    
-      //rotation code
-    while ((TurnGoal - InternalZ)>15){
-      _pigeon.getYawPitchRoll(ypr);
-      System.out.println("yaw is " + ypr[0]);
-      InternalZ = ypr[0];
-      MRot = (TurnGoal - InternalZ) * RotMulti;
-      
-      //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
-      if (TurnGoal < 0){//right
-        MRot = MRot * -1;
-        FrontLeft.set(ControlMode.PercentOutput, MRot);
-        FrontRight.set(ControlMode.PercentOutput, MRot);
-      }
-      else{//left
-        FrontLeft.set(ControlMode.PercentOutput, MRot);
-        FrontRight.set(ControlMode.PercentOutput, MRot);
-      }
-
-    }
-    */
-
   }
 
   @Override
   public void autonomousPeriodic() {
     loopTime = 0;
     //doubleSolenoid.set(Value.kForward);
-    if (loopTime < 1){
-      System.out.println("hey");
-      loopTime = 2;
+    if (loopTime < 8){
+      loopTime = loopTime + 1;
+      //negitive for right
+      System.out.println("this is the " + loopTime);
+      if (loopTime == 1){
+        //FirstGoal = 200000;
+        goalFt = 6;
+        TurnGoal = -105;
+      }
+      else if (loopTime == 2){
+        goalFt = 1.5;
+        TurnGoal = 105;
+      }
+      else if (loopTime == 3){
+        goalFt = 3;
+        TurnGoal = 105;
+      }
+      else if (loopTime == 4){
+        goalFt = 3;
+        TurnGoal = 105;
+      }
+      else if (loopTime == 5){
+        goalFt = 3;
+        TurnGoal = 105;
+      }
+      else if (loopTime == 6){
+        goalFt = 1.5;
+        TurnGoal = -105;
+      }
+      else if (loopTime == 7){
+        goalFt = 6;
+        TurnGoal = 195;
+      }
+
+
+      //this is based on the first measurements I took, they may need to be tuned
+      //found by deviding the total encoder value took when I tried to go to 6 ft (200000 tics) then I devided it by 6 for 6 feet
+      FirstGoal =  goalFt * 33333.33;
+
       //resetting encoder values
-    m_FrontLeft.setSelectedSensorPosition(0);
-    m_FrontRight.setSelectedSensorPosition(0);
-    m_BackLeft.setSelectedSensorPosition(0);
-    m_BackRight.setSelectedSensorPosition(0);
-    int kTimeoutMs = 50;
-    _pigeon.setYaw(0,kTimeoutMs);
+      m_FrontLeft.setSelectedSensorPosition(0);
+      m_FrontRight.setSelectedSensorPosition(0);
+      m_BackLeft.setSelectedSensorPosition(0);
+      m_BackRight.setSelectedSensorPosition(0);
+      int kTimeoutMs = 50;
+      _pigeon.setYaw(0,kTimeoutMs);
 
-    //I use these variables to quickly find and set the goal and proportional multiplyer
-    //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
-    FirstGoal = 200000;
-    multi = .0000035;
+      //I use these variables to quickly find and set the goal and proportional multiplyer
+      //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
+      
+      multi = .0000035;
 
-    //todo: learn how to have this is another file so it doesnt take up space here
-    //this part corrects for it moving past it V
-    while (FRpos + FLpos < (FirstGoal *2) - 55900){
-      //this gets the encoder position and reverses the other one because the motors are reversed from left to right
-      FRpos = FrontRight.getSelectedSensorPosition();
-      FLpos = FrontLeft.getSelectedSensorPosition() * -1;
-      //does the math of what the right side percent output is
-      FRlevel = (FirstGoal - FRpos)*multi;
-      if (FRpos != FirstGoal){
+      //todo: learn how to have this is another file so it doesnt take up space here
+      //this part corrects for it moving past it V
+      while (FRpos + FLpos < (FirstGoal *2) - 55900){
+        //this gets the encoder position and reverses the other one because the motors are reversed from left to right
+        FRpos = FrontRight.getSelectedSensorPosition();
+        FLpos = FrontLeft.getSelectedSensorPosition() * -1;
+        //does the math of what the right side percent output is
+        FRlevel = (FirstGoal - FRpos)*multi;
+        if (FRpos != FirstGoal){
         FrontRight.set(ControlMode.PercentOutput, FRlevel);
       }
       //does the math of what the left side percent output is
@@ -242,18 +222,18 @@ public class Robot extends TimedRobot {
       }
       
       //same as above but for turning
-      TurnGoal = -105;
+      //TurnGoal = -105;
       RotMulti = .005;
     
     
-      //rotation code
-    while (Math.abs((TurnGoal - InternalZ))>15){
-      _pigeon.getYawPitchRoll(ypr);
-      System.out.println("yaw is " + ypr[0]);
-      InternalZ = ypr[0];
-      MRot = (TurnGoal - InternalZ) * RotMulti;
+       //rotation code
+      while (Math.abs((TurnGoal - InternalZ))>15){
+        _pigeon.getYawPitchRoll(ypr);
+        System.out.println("yaw is " + ypr[0]);
+        InternalZ = ypr[0];
+        MRot = (TurnGoal - InternalZ) * RotMulti;
       
-      //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
+        //checks if you are turning left or right and changes the motor math output so it turns in the correct direction 
       if (TurnGoal < 0){//right
         //MRot = MRot * -1;
         FrontLeft.set(ControlMode.PercentOutput, MRot);
@@ -268,7 +248,9 @@ public class Robot extends TimedRobot {
 
 
     }
-    loopTime = 2;    
+    else {
+      //CommandScheduler.getInstance().cancelAll();
+    }    
   }
 
   @Override
