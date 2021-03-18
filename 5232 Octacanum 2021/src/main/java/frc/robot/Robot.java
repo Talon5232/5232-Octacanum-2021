@@ -79,6 +79,7 @@ public class Robot extends TimedRobot {
   public double Z;
 
   int fans;
+  boolean forwardDone;
 
 
   int loopTime;
@@ -144,17 +145,23 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    forwardDone = false;
+    loopTime = 1;
+    m_FrontLeft.setSelectedSensorPosition(0);
+    m_FrontRight.setSelectedSensorPosition(0);
+    int kTimeoutMs = 50;
+    _pigeon.setYaw(0,kTimeoutMs);
   }
 
   @Override
   public void autonomousPeriodic() {
-    loopTime = 0;
+    
     doubleSolenoid.set(Value.kForward);
     if (loopTime < 8){
-      loopTime = loopTime + 1;
+      
       //this was just recently added so every time it loops it changes the what setpoints it is going for.  I realise that I couldve done this with other stuff so it doesnt have to be in robot.java, but it is here for now
       //negative angle for right turning
-      System.out.println("this is the " + loopTime);
+      
       if (loopTime == 1){
         //I keep this here so I can refer to it later: FirstGoal = 200000;
         goalFt = 6;
@@ -184,12 +191,16 @@ public class Robot extends TimedRobot {
         goalFt = 6;
         TurnGoal = 195;
       }
+      else{
+
+      }
 
 
       //this is based on the first measurements I took, they may need to be tuned
       //found by deviding the total encoder value took when I tried to go to 6 ft (200000 tics) then I devided it by 6 for 6 feet
-      FirstGoal =  goalFt * 33333.33;
-
+      FirstGoal =  goalFt * 33333;
+      System.out.println(FirstGoal);
+/*
       //resetting encoder and pigeon values
       m_FrontLeft.setSelectedSensorPosition(0);
       m_FrontRight.setSelectedSensorPosition(0);
@@ -197,42 +208,74 @@ public class Robot extends TimedRobot {
       m_BackRight.setSelectedSensorPosition(0);
       int kTimeoutMs = 50;
       _pigeon.setYaw(0,kTimeoutMs);
-
+*/
       //I use these variables to quickly find and set the goal and proportional multiplyer
       //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
       multi = .0000035;
       RotMulti = .005;
 
       //the minusing part corrects for it moving past the goal or it going to slow
-      while (FRpos + FLpos < (FirstGoal *2) - 55900){
-        //this gets the encoder position and reverses the other one because the motors are reversed from left to right
-        FRpos = FrontRight.getSelectedSensorPosition();
-        FLpos = FrontLeft.getSelectedSensorPosition() * -1;
-        //does the math of what the percent output is per side
-        FRlevel = (FirstGoal - FRpos)*multi;
-        FLlevel = (FirstGoal - FLpos)*multi;
-        //reverses left side bc motors are backwards
-        FLlevel = FLlevel * -1;
-
-        if (FRpos != FirstGoal){
-        FrontRight.set(ControlMode.PercentOutput, FRlevel); 
-        }
+      System.out.println(forwardDone);
+      if(forwardDone == false){
+        System.out.println("this is the " + loopTime);
+        if (FRpos + FLpos < (FirstGoal *2) - 55900){
+          forwardDone = false;
+          
         
-        if (FLpos != FirstGoal){
-          FrontLeft.set(ControlMode.PercentOutput, FLlevel);
+          //this gets the encoder position and reverses the other one because the motors are reversed from left to right
+          FRpos = FrontRight.getSelectedSensorPosition();
+          FLpos = FrontLeft.getSelectedSensorPosition() * -1;
+          //does the math of what the percent output is per side
+          FRlevel = (FirstGoal - FRpos)*multi;
+          FLlevel = (FirstGoal - FLpos)*multi;
+          System.out.println("Right: "+ FRlevel);
+          System.out.print(" Left: "+ FLlevel);
+          //reverses left side bc motors are backwards
+          FLlevel = FLlevel * -1;
+          
+
+          if (FRpos != FirstGoal){
+          FrontRight.set(ControlMode.PercentOutput, FRlevel); 
+          }
+          
+          if (FLpos != FirstGoal){
+            FrontLeft.set(ControlMode.PercentOutput, FLlevel);
+          }
+        
         }
-      }
+        else{
+          forwardDone = true;
+        }
+     }
       
       //same as above but for turning
-      while (Math.abs((TurnGoal - InternalZ))>15){
-        _pigeon.getYawPitchRoll(ypr);
-        System.out.println("yaw is " + ypr[0]);
-        InternalZ = ypr[0];
-        //MRot is motor rotation wich is what I set the motors to
-        MRot = (TurnGoal - InternalZ) * RotMulti;
-        FrontLeft.set(ControlMode.PercentOutput, MRot);
-        FrontRight.set(ControlMode.PercentOutput, MRot);
+      if (forwardDone == true){
+        if (Math.abs((TurnGoal - InternalZ))>15){
+          _pigeon.getYawPitchRoll(ypr);
+          //System.out.println("yaw is " + ypr[0]);
+          InternalZ = ypr[0];
+          //MRot is motor rotation wich is what I set the motors to
+          MRot = (TurnGoal - InternalZ) * RotMulti;
+          FrontLeft.set(ControlMode.PercentOutput, MRot);
+          FrontRight.set(ControlMode.PercentOutput, MRot);
+        }
+        else{
+          forwardDone = false;
+          System.out.println("erterg;lkjdsnhfg;lkjsdfg");
+          loopTime = loopTime + 1;
+          //resetting encoder and pigeon values
+          m_FrontLeft.setSelectedSensorPosition(0);
+          m_FrontRight.setSelectedSensorPosition(0);
+          //m_BackLeft.setSelectedSensorPosition(0);
+          //m_BackRight.setSelectedSensorPosition(0);
+          int kTimeoutMs = 50;
+          _pigeon.setYaw(0,kTimeoutMs);
+        }
       }
+      else{
+        forwardDone = false;
+      }
+
     }   
   }
 
