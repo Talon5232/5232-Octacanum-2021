@@ -94,7 +94,8 @@ public class Robot extends TimedRobot {
   double FirstGoal;
   double multi;
   double RotMulti;
-  
+  double goalFt;
+
   //motor value for auto
   double FRlevel;
   double FLlevel;
@@ -103,7 +104,7 @@ public class Robot extends TimedRobot {
   int FRpos;
   int FLpos;
 
-  double goalFt;
+  
   
 
   //pnumatics decleration and variables
@@ -116,6 +117,8 @@ public class Robot extends TimedRobot {
   //setup code for the tank drive mode
   private final DifferentialDrive m_drive = new DifferentialDrive(m_FrontLeft,m_FrontRight);
   Relay fan1 = new Relay(0);
+
+  private final Rot ROT = new Rot();
   //Relay fan2 = new Relay(0)
 
 
@@ -145,18 +148,29 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    /*
     forwardDone = false;
-    loopTime = 1;
+    loopTime = 0;
+    goalFt = 0;
+    TurnGoal = 0;
     m_FrontLeft.setSelectedSensorPosition(0);
     m_FrontRight.setSelectedSensorPosition(0);
     int kTimeoutMs = 50;
     _pigeon.setYaw(0,kTimeoutMs);
+    */
+    ROT.schedule();
   }
 
   @Override
   public void autonomousPeriodic() {
+
+    goalFt = 6;
     
+    //new Rot();
+    //ROT.schedule();
+    //start(ROT());
     doubleSolenoid.set(Value.kForward);
+    /*
     if (loopTime < 8){
       
       //this was just recently added so every time it loops it changes the what setpoints it is going for.  I realise that I couldve done this with other stuff so it doesnt have to be in robot.java, but it is here for now
@@ -164,12 +178,14 @@ public class Robot extends TimedRobot {
       
       if (loopTime == 1){
         //I keep this here so I can refer to it later: FirstGoal = 200000;
-        goalFt = 1.5;
+        goalFt = 6;
+        FirstGoal = 165000;
         //goal ft would ussally be 6 feet but im testing something
         TurnGoal = -105;
       }
       else if (loopTime == 2){
-        goalFt = 1.5;
+        goalFt = 5;
+        FirstGoal = 41250;
         TurnGoal = 105;
       }
       else if (loopTime == 3){
@@ -199,8 +215,11 @@ public class Robot extends TimedRobot {
 
       //this is based on the first measurements I took, they may need to be tuned
       //found by deviding the total encoder value took when I tried to go to 6 ft (200000 tics) then I devided it by 6 for 6 feet
-      FirstGoal =  goalFt * 33333;
-      System.out.println(FirstGoal);
+      
+      //FirstGoal =  goalFt * 27500;
+      
+      //System.out.println(FirstGoal);
+      //schoolsong on the motors
 /*
       //resetting encoder and pigeon values
       m_FrontLeft.setSelectedSensorPosition(0);
@@ -209,16 +228,16 @@ public class Robot extends TimedRobot {
       m_BackRight.setSelectedSensorPosition(0);
       int kTimeoutMs = 50;
       _pigeon.setYaw(0,kTimeoutMs);
-*/
+*//*
       //I use these variables to quickly find and set the goal and proportional multiplyer
       //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
       multi = .0000035;
       RotMulti = .005;
 
       //the minusing part corrects for it moving past the goal or it going to slow
-      System.out.println(forwardDone);
+      //System.out.println(forwardDone);
       if(forwardDone == false){
-        System.out.println("this is the " + loopTime);
+        //System.out.println("this is the " + loopTime);
         if (FRpos + FLpos < (FirstGoal *2) - 55900){
           forwardDone = false;
           
@@ -229,8 +248,8 @@ public class Robot extends TimedRobot {
           //does the math of what the percent output is per side
           FRlevel = (FirstGoal - FRpos)*multi;
           FLlevel = (FirstGoal - FLpos)*multi;
-          System.out.println("Right: "+ FRlevel);
-          System.out.print(" Left: "+ FLlevel);
+          System.out.println("Right: "+ FRpos);
+          System.out.print(" Left: "+ FLpos);
           //reverses left side bc motors are backwards
           FLlevel = FLlevel * -1;
           
@@ -259,6 +278,8 @@ public class Robot extends TimedRobot {
           MRot = (TurnGoal - InternalZ) * RotMulti;
           FrontLeft.set(ControlMode.PercentOutput, MRot);
           FrontRight.set(ControlMode.PercentOutput, MRot);
+          m_FrontLeft.setSelectedSensorPosition(0);
+          m_FrontRight.setSelectedSensorPosition(0);
         }
         else{
           forwardDone = false;
@@ -278,6 +299,7 @@ public class Robot extends TimedRobot {
       }
 
     }   
+    */
   }
 
   @Override
