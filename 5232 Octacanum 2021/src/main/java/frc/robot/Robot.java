@@ -164,7 +164,8 @@ public class Robot extends TimedRobot {
       
       if (loopTime == 1){
         //I keep this here so I can refer to it later: FirstGoal = 200000;
-        goalFt = 6;
+        goalFt = 1.5;
+        //goal ft would ussally be 6 feet but im testing something
         TurnGoal = -105;
       }
       else if (loopTime == 2){
@@ -261,15 +262,15 @@ public class Robot extends TimedRobot {
         }
         else{
           forwardDone = false;
-          System.out.println("erterg;lkjdsnhfg;lkjsdfg");
+          System.out.println("erterg;lkjdsnhfg;lkjsdfga;sldkjf;lkajsd;lkjfa;lksdj;lkajsdflknanerlajenrfkaejrngekajnrt");
           loopTime = loopTime + 1;
           //resetting encoder and pigeon values
+          //this may be causing issues in that it takes too long to reset the encoders
           m_FrontLeft.setSelectedSensorPosition(0);
           m_FrontRight.setSelectedSensorPosition(0);
-          //m_BackLeft.setSelectedSensorPosition(0);
-          //m_BackRight.setSelectedSensorPosition(0);
-          int kTimeoutMs = 50;
-          _pigeon.setYaw(0,kTimeoutMs);
+          //int kTimeoutMs = 50;
+          _pigeon.setYaw(0);
+          //_pigeon.setYaw(0,kTimeoutMs);
         }
       }
       else{
