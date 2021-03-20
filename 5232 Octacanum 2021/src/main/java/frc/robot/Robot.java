@@ -8,7 +8,7 @@
 package frc.robot;
 
 
-
+//import frc.Rot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -35,6 +35,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import com.ctre.phoenix.music.Orchestra;
+
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 //com.ctre.phoenix.music.Orchestra.Orchestra(Collection<FrontLeft> instruments
 //string C:\Users\htown\Documents\GitHub\mateos git things\5232-Octacanum-2021\5232 Octacanum 2021\src\main\deploy\nuh.chrp
@@ -141,9 +143,11 @@ public class Robot extends TimedRobot {
     //just a quick line so you can see when the robot init code happens
     System.out.println("-----------------Start of the program-----------------");
     _pigeon.setYaw(0);
-   // _orchestra = new Orchestra(FrontRight);
+    // _orchestra = new Orchestra(FrontRight);
+    m_Rot = new Rot();
   }
   public void robotPeriodic() {
+    CommandScheduler.getInstance().run();
   }
 
   @Override
@@ -158,17 +162,23 @@ public class Robot extends TimedRobot {
     int kTimeoutMs = 50;
     _pigeon.setYaw(0,kTimeoutMs);
     */
-    ROT.schedule();
+
+    
+
+    //CommandScheduler.getInstance().schedule(Rot());
+
   }
 
   @Override
   public void autonomousPeriodic() {
 
     goalFt = 6;
+    //https://discord.com/channels/176186766946992128/528555967827148801/822587738565247036
     
     //new Rot();
     //ROT.schedule();
-    //start(ROT());
+    //start(ROT())
+    
     doubleSolenoid.set(Value.kForward);
     /*
     if (loopTime < 8){

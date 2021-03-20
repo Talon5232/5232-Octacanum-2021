@@ -77,7 +77,7 @@ public class Rot extends CommandBase {
   @Override
   public void execute() {
     System.out.println("what");
-    if (loopTime < 8){
+    while (loopTime < 8){
       
       //this was just recently added so every time it loops it changes the what setpoints it is going for.  I realise that I couldve done this with other stuff so it doesnt have to be in robot.java, but it is here for now
       //negative angle for right turning
