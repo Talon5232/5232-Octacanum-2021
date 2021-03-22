@@ -152,7 +152,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    /*
+    
     forwardDone = false;
     loopTime = 0;
     goalFt = 0;
@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
     m_FrontRight.setSelectedSensorPosition(0);
     int kTimeoutMs = 50;
     _pigeon.setYaw(0,kTimeoutMs);
-    */
+    
 
     
 
@@ -180,7 +180,7 @@ public class Robot extends TimedRobot {
     //start(ROT())
     
     doubleSolenoid.set(Value.kForward);
-    /*
+    
     if (loopTime < 8){
       
       //this was just recently added so every time it loops it changes the what setpoints it is going for.  I realise that I couldve done this with other stuff so it doesnt have to be in robot.java, but it is here for now
@@ -238,7 +238,7 @@ public class Robot extends TimedRobot {
       m_BackRight.setSelectedSensorPosition(0);
       int kTimeoutMs = 50;
       _pigeon.setYaw(0,kTimeoutMs);
-*//*
+*/
       //I use these variables to quickly find and set the goal and proportional multiplyer
       //proportional multiplyer means that it ramps down speed proportionally to how close the sensor position is to the goal position
       multi = .0000035;
@@ -309,7 +309,7 @@ public class Robot extends TimedRobot {
       }
 
     }   
-    */
+    
   }
 
   @Override
