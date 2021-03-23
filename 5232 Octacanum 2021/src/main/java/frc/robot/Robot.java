@@ -36,7 +36,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import com.ctre.phoenix.music.Orchestra;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+//import edu.wpi.first.wpilibj2.command.CommandBase;
 
 //com.ctre.phoenix.music.Orchestra.Orchestra(Collection<FrontLeft> instruments
 //string C:\Users\htown\Documents\GitHub\mateos git things\5232-Octacanum-2021\5232 Octacanum 2021\src\main\deploy\nuh.chrp
@@ -122,6 +122,7 @@ public class Robot extends TimedRobot {
 
   private final Rot ROT = new Rot();
   //Relay fan2 = new Relay(0)
+  int Goal2;
 
 
   /**
@@ -144,34 +145,19 @@ public class Robot extends TimedRobot {
     System.out.println("-----------------Start of the program-----------------");
     _pigeon.setYaw(0);
     // _orchestra = new Orchestra(FrontRight);
-    m_Rot = new Rot();
+    //m_Rot = new Rot();
   }
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
+    //CommandScheduler.getInstance().run();
   }
 
   @Override
   public void autonomousInit() {
-    
-    forwardDone = false;
-    loopTime = 0;
-    goalFt = 0;
-    TurnGoal = 0;
-    m_FrontLeft.setSelectedSensorPosition(0);
-    m_FrontRight.setSelectedSensorPosition(0);
-    int kTimeoutMs = 50;
-    _pigeon.setYaw(0,kTimeoutMs);
-    
-
-    
-
-    //CommandScheduler.getInstance().schedule(Rot());
-
   }
 
   @Override
   public void autonomousPeriodic() {
-
+    System.out.println("hey");
     goalFt = 6;
     //https://discord.com/channels/176186766946992128/528555967827148801/822587738565247036
     
@@ -189,14 +175,11 @@ public class Robot extends TimedRobot {
       if (loopTime == 1){
         //I keep this here so I can refer to it later: FirstGoal = 200000;
         goalFt = 6;
-        FirstGoal = 165000;
-        //goal ft would ussally be 6 feet but im testing something
         TurnGoal = -105;
       }
       else if (loopTime == 2){
-        goalFt = 5;
-        FirstGoal = 41250;
-        TurnGoal = 105;
+        goalFt = 1.5;
+        TurnGoal = 0;
       }
       else if (loopTime == 3){
         goalFt = 3;
@@ -226,7 +209,7 @@ public class Robot extends TimedRobot {
       //this is based on the first measurements I took, they may need to be tuned
       //found by deviding the total encoder value took when I tried to go to 6 ft (200000 tics) then I devided it by 6 for 6 feet
       
-      //FirstGoal =  goalFt * 27500;
+      FirstGoal =  goalFt * 27500;
       
       //System.out.println(FirstGoal);
       //schoolsong on the motors
@@ -246,8 +229,7 @@ public class Robot extends TimedRobot {
 
       //the minusing part corrects for it moving past the goal or it going to slow
       //System.out.println(forwardDone);
-      if(forwardDone == false){
-        //System.out.println("this is the " + loopTime);
+        System.out.println("this is the " + loopTime);
         if (FRpos + FLpos < (FirstGoal *2) - 55900){
           forwardDone = false;
           
@@ -274,12 +256,7 @@ public class Robot extends TimedRobot {
         
         }
         else{
-          forwardDone = true;
-        }
-     }
-      
-      //same as above but for turning
-      if (forwardDone == true){
+          //same as above but for turning
         if (Math.abs((TurnGoal - InternalZ))>15){
           _pigeon.getYawPitchRoll(ypr);
           //System.out.println("yaw is " + ypr[0]);
@@ -288,11 +265,10 @@ public class Robot extends TimedRobot {
           MRot = (TurnGoal - InternalZ) * RotMulti;
           FrontLeft.set(ControlMode.PercentOutput, MRot);
           FrontRight.set(ControlMode.PercentOutput, MRot);
-          m_FrontLeft.setSelectedSensorPosition(0);
-          m_FrontRight.setSelectedSensorPosition(0);
+          //m_FrontLeft.setSelectedSensorPosition(0);
+          //m_FrontRight.setSelectedSensorPosition(0);
         }
         else{
-          forwardDone = false;
           System.out.println("erterg;lkjdsnhfg;lkjsdfga;sldkjf;lkajsd;lkjfa;lksdj;lkajsdflknanerlajenrfkaejrngekajnrt");
           loopTime = loopTime + 1;
           //resetting encoder and pigeon values
@@ -301,15 +277,9 @@ public class Robot extends TimedRobot {
           m_FrontRight.setSelectedSensorPosition(0);
           //int kTimeoutMs = 50;
           _pigeon.setYaw(0);
-          //_pigeon.setYaw(0,kTimeoutMs);
+        }
         }
       }
-      else{
-        forwardDone = false;
-      }
-
-    }   
-    
   }
 
   @Override
@@ -346,10 +316,10 @@ public class Robot extends TimedRobot {
       compr = 1;
     }
     if (m_stick.getRawButton(7)){
-      fans = 0;
+      fans = 1;
     }
     if (m_stick.getRawButton(8)){
-      fans = 1;
+      fans = 0;
     }
     //here it turns on and off the compressor
     if (compr == 1){
@@ -448,14 +418,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    //com.ctre.phoenix.music.Orchestra.Orchestra(Collection<FrontLeft, FrontRight>)
-    //Orchestra =  _Orchestra(Collection<m_FrontLeft>, String C:\Users\htown\Documents\GitHub\mateos git things\5232-Octacanum-2021\5232 Octacanum 2021\src\main\deploy\nuh.chrp);
+    
+      
+
 
   }
 
+
   @Override
   public void testPeriodic(){
-    fan1.set(Relay.Value.kForward);
+    
 
      
 
