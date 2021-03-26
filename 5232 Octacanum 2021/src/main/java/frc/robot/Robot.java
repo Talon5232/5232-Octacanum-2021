@@ -119,8 +119,6 @@ public class Robot extends TimedRobot {
   //setup code for the tank drive mode
   private final DifferentialDrive m_drive = new DifferentialDrive(m_FrontLeft,m_FrontRight);
   Relay fan1 = new Relay(0);
-
-  private final Rot ROT = new Rot();
   //Relay fan2 = new Relay(0)
   int Goal2;
 
@@ -153,6 +151,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_FrontLeft.setSelectedSensorPosition(0);
+          m_FrontRight.setSelectedSensorPosition(0);
+          _pigeon.setYaw(0);
   }
 
   @Override
@@ -265,8 +266,8 @@ public class Robot extends TimedRobot {
           MRot = (TurnGoal - InternalZ) * RotMulti;
           FrontLeft.set(ControlMode.PercentOutput, MRot);
           FrontRight.set(ControlMode.PercentOutput, MRot);
-          //m_FrontLeft.setSelectedSensorPosition(0);
-          //m_FrontRight.setSelectedSensorPosition(0);
+          m_FrontLeft.setSelectedSensorPosition(0);
+          m_FrontRight.setSelectedSensorPosition(0);
         }
         else{
           System.out.println("erterg;lkjdsnhfg;lkjsdfga;sldkjf;lkajsd;lkjfa;lksdj;lkajsdflknanerlajenrfkaejrngekajnrt");
